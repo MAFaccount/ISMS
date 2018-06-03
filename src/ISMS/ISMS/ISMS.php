@@ -132,7 +132,7 @@ class ISMS{
 		$callData['otp'] = $otp;
 
 		//get the call endpoint from the config file
-		$url = config('isms.call_url')
+		$url = config('isms.call_url');
 
 		//send the request using guzzle and store the response 
 		$res = $this->_http->request($method ,$url , ['query' => $callData]);
