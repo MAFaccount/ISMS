@@ -1,0 +1,33 @@
+{
+    "name": "maf/isms",
+    "description": "this is a library that will use external apis to send messages to customer phone",
+    "version" : "1.0",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mohammad Istanbouly",
+            "email": "mohammad.istanbouly@maf.co.ae"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^6.3",
+        "monolog/monolog": "^1.23",
+	    "illuminate/support": ">=5.0.0"
+    },
+    "autoload" : {
+        "psr-4" : {
+            "ISMS\\" : "src/ISMS"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ISMS\\ISMS\\ISMSServiceProvider"
+            ],
+            "aliases": {
+                "ISMS": "ISMS\\Facades\\ISMS"
+            }
+        }
+    }
+}
