@@ -25,7 +25,7 @@ class ISMS{
 	 * @return json
 	 */
 	public function sendSms($msg = '' , $msisdn = '' , $method = 'GET'){
-		$msg =  $msg . ' %m';
+		$msg =  $msg . '%m';
 
         $this->_queryData['msg'] = $msg;
         $this->_queryData['msisdn'] = $msisdn;
