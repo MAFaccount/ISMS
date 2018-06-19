@@ -37,13 +37,16 @@ trait ISMSMessageTrait {
 	 * Opt validation process errors will be pushed to this array
 	 * @var array
 	 */
-	protected $_errorsOpt = [];
+	protected $_errorsOtp = [];
 
 	/**
 	 * Call Verfication process errors will be pushed to this array
 	 * @var array
 	 */
 	protected $_errorsCall = [];
+
+
+    protected $_errorsBulk = [];
 
 	/**
 	 * List of API error codes and there meaning
@@ -75,8 +78,29 @@ trait ISMSMessageTrait {
 	];
 
 
+    protected $_bulkApiErrors = [
+        '1702' => 'One of the parameter is missing.',
+        '1703' => 'Bad Username Password. This means user authentication has failed',
+        '1704' => 'Invalid message type',
+        '1705' => 'Invalid message',
+        '1706' => 'Invalid MSISDN',
+        '1707' => 'Invalid source/sender',
+        '1709' => 'Bind failed',
+        '1710' => 'Unknown error',
+        '1713' => 'To many destinations',
+        '1715' => 'Response timeout',
+        '1025' => 'Insufficient user credit',
+        '1028' => 'Spam message',
+        '1032' => 'DND destination',
+        '1033' => 'Message template mismatch.',
+        '1035' => 'User opt out',
+        '1041' => 'Duplicate message',
+        '1042' => 'Explicit DND',
+    ];
+
+
 	/**
-	 * Query string data of sendSms process
+	 * Query string data of sendOTP process
 	 * these will be filled from config file
 	 * @var array
 	 */
@@ -104,7 +128,7 @@ trait ISMSMessageTrait {
      * the lib will push a corrosponding error to the protected _errorsOpt array
      * @var [array]
      */
-	protected $_mandatoryFieldsOpt = [
+	protected $_mandatoryFieldsOtp = [
 		'username',
 		'password',
         'msisdn',
@@ -121,6 +145,17 @@ trait ISMSMessageTrait {
 		'jobType',
 		'dest',
 	];
+
+
+    protected $_mandatoryFieldsBulk = [
+        'username',
+        'password',
+        'source',
+        'message',
+        'destination',
+        'type',
+        'dlr',
+    ];
 
 
 	/**
@@ -140,6 +175,22 @@ trait ISMSMessageTrait {
 		$this->_logPath = config('isms.log_path');
 	}
 
+
+
+    /**
+     * validateSmsQueryStringData will validate the passed array if it has all the mandatory fields
+     * for validating OPT request
+     * @param       $data           array of query string data for validate opt request
+     * @return array
+     */
+    protected function validateSmsQueryStringData(array $data = []){
+        foreach ($this->_mandatoryFieldsBulk as $mandatoryFiled) {
+            if(!isset($data[$mandatoryFiled]) || $data[$mandatoryFiled] === '')
+                $this->_errorsBulk[] = $mandatoryFiled . " Is Mandatory field should exist and shouldn't be empty";
+        }
+
+        return $data;
+    }
 
 	/**
 	 * validateQueryStringData will validate the protected _queryData and check if all the mandatory fields are there and are not empty
@@ -168,10 +219,10 @@ trait ISMSMessageTrait {
 	 * @param  		$data 			array of query string data for validate opt request
 	 * @return array
 	 */
-	protected function validateOptQueryStringData(array $data = []){
-		foreach ($this->_mandatoryFieldsOpt as $mandatoryFiled) {
+	protected function validateOtpQueryStringData(array $data = []){
+		foreach ($this->_mandatoryFieldsOtp as $mandatoryFiled) {
 			if(!isset($data[$mandatoryFiled]) || empty($data[$mandatoryFiled]))
-				$this->_errorsOpt[] = $mandatoryFiled . " Is Mandatory field should exist and shouldn't be empty";
+				$this->_errorsOtp[] = $mandatoryFiled . " Is Mandatory field should exist and shouldn't be empty";
 		}
 
 		return $data;

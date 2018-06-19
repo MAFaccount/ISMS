@@ -1,7 +1,7 @@
 <?php
 
 namespace ISMS\ISMS;
- 
+
 use GuzzleHttp\Client;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -17,6 +17,54 @@ class ISMS{
 		$this->_logger = new Logger('ISMS');
 		$this->_logger->pushHandler(new StreamHandler($this->_logPath, Logger::WARNING));
 	}
+
+
+    public function sendSMS($msg = '' , $destinations = [] , $type = '0' , $dlr = '0' , $method = 'GET'){
+        //grab the query data for bulkSMS
+        $smsQueryData = config('isms.data');
+
+        //unset unnecessary data
+        unset($smsQueryData['exptime']);
+        unset($smsQueryData['otplen']);
+
+        //push the dynamic data to the array
+        $smsQueryData['message'] = $msg;
+        $destinations = implode(',', $destinations);
+        // return $destinations;
+        $smsQueryData['destination'] = $destinations;
+        $smsQueryData['type'] = $type;
+        $smsQueryData['dlr'] = $dlr;
+
+
+        //send the array to be validated
+        $smsQueryData = $this->validateSmsQueryStringData($smsQueryData);
+
+        //check if errors occurs
+        if($this->_errorsBulk){
+            $jsonErrors = json_encode(['status' => 'failed' , 'errors' => $this->_errorsBulk]);
+            $this->logError($jsonErrors);
+            return $jsonErrors;
+        }
+
+        //grab the url for bulk sms from the config
+        $url = config('isms.send_bulk_url');
+
+        //send the response and read it's body
+        $res = $this->_http->request($method ,$url , ['query' => $smsQueryData]);
+        $body = $res->getBody();
+        $data = $body->read(100);
+
+        //check for success
+        if(preg_match('/^1701/', $data))
+            return json_encode(['status' => 'success' , 'api-errors' => []]);
+        foreach ($this->_bulkApiErrors as $key => $value) {
+            if($data == (string) $key){
+                $jsonRes = json_encode(['status' => 'failed' , 'api-errors' => [$key => $value]]);
+                $this->logError($jsonRes);
+                return $jsonRes;
+            }
+        }
+    }
 
 	/**
 	 * @param  string 			$msg 			Ths SMS message
@@ -45,7 +93,7 @@ class ISMS{
 		$body = $res->getBody();
         $data = $body->read(100);
 
-        //check for success 
+        //check for success
         if(preg_match('/^1701/', $data))
         	return json_encode(['status' => 'success' , 'api-errors' => []]);
 
@@ -77,7 +125,7 @@ class ISMS{
 		$otpQueryData['otp'] = $otp;
 
         //validate OptQueryData
-		$otpQueryData = $this->validateOptQueryStringData($otpQueryData);
+		$otpQueryData = $this->validateOtpQueryStringData($otpQueryData);
 
         //if any ISMS errors log and return them
 		if($this->_errorsOpt){
@@ -95,7 +143,7 @@ class ISMS{
 		//check for success
         if(preg_match('/^101/', $data))
 			return json_encode(['status' => 'success' , 'api-errors' => []]);
-        
+
         //Check for api errors during the validation of OTP Process and log if any
         foreach ($this->_apiErrors as $key => $value) {
             if($data == (string) $key){
@@ -134,16 +182,16 @@ class ISMS{
 		//get the call endpoint from the config file
 		$url = config('isms.call_url');
 
-		//send the request using guzzle and store the response 
+		//send the request using guzzle and store the response
 		$res = $this->_http->request($method ,$url , ['query' => $callData]);
 		$body = $res->getBody();
 		//read the response from the stream
         $data = $body->read(100);
-		
+
 		//check for success
         if(preg_match('/^3001/', $data))
 			return json_encode(['status' => 'success' , 'api-errors' => []]);
-        
+
         //Check for api errors during the call verfication process and log if any
         foreach ($this->_apiErrors as $key => $value) {
             if($data == (string) $key){
