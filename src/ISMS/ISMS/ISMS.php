@@ -128,8 +128,8 @@ class ISMS{
 		$otpQueryData = $this->validateOtpQueryStringData($otpQueryData);
 
         //if any ISMS errors log and return them
-		if($this->_errorsOpt){
-			$jsonErrors = json_encode(['status' => 'failed' , 'errors' => $this->_errorsOpt]);
+		if($this->_errorsOtp){
+			$jsonErrors = json_encode(['status' => 'failed' , 'errors' => $this->_errorsOtp]);
 			$this->logError($jsonErrors);
 			return $jsonErrors;
 		}
