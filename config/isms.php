@@ -4,6 +4,7 @@ return [
 	'send_sms_url' => env('SEND_SMS_URL'),
 	'send_validation_url' => env('SEND_VALIDATION_URL'),
     'call_url' => 'http://voip.routevoice.com/httpApi/genCalls.php',
+    'send_bulk_url' => env('SEND_BULK_URL'),
 
 	'log_path' => env('ISMS_LOG_PATH'),
 
@@ -13,7 +14,7 @@ return [
         'exptime' => env('ISMS_EXPIRY_TIME'),
         'source' => env('ISMS_SOURCE'),
         'otplen' => env('OTP_LENGTH'),
-    ]
+    ],
 
     'call_data' => [
         'user' => env('ISMS_CALL_USER'),
