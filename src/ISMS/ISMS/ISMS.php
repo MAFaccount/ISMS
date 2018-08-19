@@ -13,7 +13,7 @@ class ISMS{
 
 	public function __construct(){
         $this->init();
-		$this->_http = new Client;
+		$this->_http = new Client(['verify' => false]);
 		$this->_logger = new Logger('ISMS');
 		$this->_logger->pushHandler(new StreamHandler($this->_logPath, Logger::WARNING));
 	}
